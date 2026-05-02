@@ -8,6 +8,8 @@ A Claude AI skill that turns raw bug descriptions into structured, copy-paste-re
 
 QA engineers and developers often have to convert messy, informal bug notes into formal defect reports. This skill automates that translation. It extracts or infers every required field, applies consistent severity and priority criteria, flags assumptions transparently, and outputs clean markdown — ready to paste directly into your issue tracker.
 
+![QA Defect Report Writer demo](assets/qa_defect_demo.gif)
+
 **Key behaviours:**
 - Works from minimal input — even a vague one-liner like "login is broken" produces a full report
 - Flags inferred or assumed fields with *(inferred)* / *(assumed)* so nothing is silently invented
