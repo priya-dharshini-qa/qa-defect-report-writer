@@ -1,0 +1,329 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+
+  .wrap { padding: 1.5rem 0; max-width: 680px; }
+
+  .label-pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .pill-input { background: #E6F1FB; color: #0C447C; }
+  .pill-output { background: #EAF3DE; color: #3B6D11; }
+
+  .chat-container {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 10px 16px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .claude-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #1D9E75;
+  }
+
+  .message-area { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+  .avatar-user { background: #E6F1FB; color: #185FA5; }
+  .avatar-claude { background: #E1F5EE; color: #0F6E56; }
+
+  .bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  .bubble-user {
+    background: #378ADD;
+    color: #fff;
+    border-bottom-right-radius: 3px;
+  }
+  .bubble-claude {
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border-bottom-left-radius: 3px;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .report-block {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Each line in the report */
+  .report-line {
+    display: block;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: pre-wrap;
+    min-height: 1.1em;
+  }
+  .report-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Blank spacer lines are shorter */
+  .report-line.blank {
+    min-height: 0.55em;
+  }
+
+  .report-title { color: #185FA5; font-weight: 500; font-size: 12px; }
+  .report-section { color: #0F6E56; font-weight: 500; }
+  .report-label { color: var(--color-text-secondary); }
+  .report-inferred { color: #BA7517; font-style: italic; }
+  .report-severity { color: #A32D2D; font-weight: 500; }
+  .report-priority { color: #533AB7; font-weight: 500; }
+
+  .typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+  .typing span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-text-secondary);
+    opacity: 0.4;
+    animation: blink 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.4; transform: scale(1); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .skill-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: #0F6E56;
+    background: #E1F5EE; border: 0.5px solid #9FE1CB;
+    border-radius: 20px; padding: 2px 9px;
+    margin-bottom: 6px;
+  }
+  .skill-dot { width: 5px; height: 5px; border-radius: 50%; background: #1D9E75; }
+
+  .footer-note {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    padding: 8px 0 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .footer-note.visible { opacity: 1; }
+
+  .cursor {
+    display: inline-block;
+    width: 2px; height: 11px;
+    background: var(--color-text-primary);
+    vertical-align: middle;
+    margin-left: 1px;
+    animation: caret 0.75s steps(1) infinite;
+  }
+  @keyframes caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .controls {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 14px 0 4px;
+  }
+  .ctrl-btn {
+    font-size: 12px; padding: 5px 14px;
+    border-radius: 20px; cursor: pointer;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    transition: background 0.15s;
+  }
+  .ctrl-btn:hover { background: var(--color-background-secondary); }
+
+  #p0, #p1, #p2 { opacity: 0; transition: opacity 0.4s ease; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">Animated demo of the QA Defect Report Writer Claude Skill</h2>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="claude-dot"></div>
+      Claude · qa-defect-report-writer skill active
+    </div>
+
+    <div class="message-area" id="msg-area">
+
+      <div class="msg user" id="p0">
+        <div class="avatar avatar-user">QA</div>
+        <div class="bubble bubble-user">
+          the export button on the invoices page does nothing when i click it. tried chrome and firefox. happens for all users.
+        </div>
+      </div>
+
+      <div class="msg" id="p1">
+        <div class="avatar avatar-claude">C</div>
+        <div class="bubble bubble-claude">
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="msg" id="p2">
+        <div class="avatar avatar-claude">C</div>
+        <div class="bubble bubble-claude" style="width:100%; max-width:100%;">
+          <div class="skill-badge"><div class="skill-dot"></div>skill: qa-defect-report-writer</div>
+          <div class="report-block" id="report-block">
+            <!-- Lines injected by JS -->
+          </div>
+          <div class="footer-note" id="footer-note">Let me know if you'd like to adjust severity, priority, steps, or any other field.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="restart()">↺ replay</button>
+  </div>
+</div>
+
+<script>
+  // Each entry: { html: innerHTML of the line, cls: extra classes }
+  const reportLines = [
+    { html: '<span class="report-title"># Defect Report: Invoice Export Button Unresponsive on Click</span>' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Summary</span>' },
+    { html: 'Clicking the Export button on the Invoices page produces no action' },
+    { html: 'or feedback, preventing users from downloading invoice data.' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Environment</span>' },
+    { html: '<span class="report-label">Application   </span>Invoices — Export feature' },
+    { html: '<span class="report-label">Version/Build </span>Not provided' },
+    { html: '<span class="report-label">OS/Platform   </span>Unknown <span class="report-inferred">*(assumed)*</span>' },
+    { html: '<span class="report-label">Browser       </span>Chrome and Firefox (confirmed)' },
+    { html: '<span class="report-label">Environment   </span>Unknown <span class="report-inferred">*(assumed)*</span>' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Steps to Reproduce</span>' },
+    { html: '1. Log in to the application <span class="report-inferred">*(inferred)*</span>' },
+    { html: '2. Navigate to the Invoices page <span class="report-inferred">*(inferred)*</span>' },
+    { html: '3. Click the Export button' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Expected Result</span>' },
+    { html: 'A file download begins (CSV or PDF of invoice data).' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Actual Result</span>' },
+    { html: 'Nothing happens — no download, no error, no feedback.' },
+    { html: 'Reproduces in Chrome + Firefox. Affects all users.' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Severity</span>' },
+    { html: '<span class="report-severity">**High**</span> — Core feature completely broken, no workaround, all users affected.' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Priority</span>' },
+    { html: '<span class="report-priority">**P2 - High**</span> — All users impacted; address in current sprint.' },
+    { html: '', blank: true },
+    { html: '<span class="report-section">## Additional Notes</span>' },
+    { html: '- Not browser-specific (Chrome + Firefox confirmed).' },
+    { html: '- Check browser console for JS errors and network tab for failed requests.' },
+  ];
+
+  let timeouts = [];
+
+  function clearAll() {
+    timeouts.forEach(t => clearTimeout(t));
+    timeouts = [];
+  }
+
+  function schedule(fn, ms) {
+    timeouts.push(setTimeout(fn, ms));
+  }
+
+  function fadeIn(el) {
+    el.style.transition = 'opacity 0.4s ease';
+    el.style.opacity = '1';
+  }
+
+  function run() {
+    const block = document.getElementById('report-block');
+    block.innerHTML = '';
+
+    // Build all line elements (hidden)
+    const lineEls = reportLines.map(({ html, blank }) => {
+      const span = document.createElement('span');
+      span.className = 'report-line' + (blank ? ' blank' : '');
+      span.innerHTML = html;
+      block.appendChild(span);
+      return span;
+    });
+
+    // Show user message
+    schedule(() => fadeIn(document.getElementById('p0')), 400);
+
+    // Show typing indicator
+    schedule(() => fadeIn(document.getElementById('p1')), 1200);
+
+    // Show response bubble (typing disappears simultaneously)
+    schedule(() => {
+      document.getElementById('p1').style.opacity = '0';
+      fadeIn(document.getElementById('p2'));
+    }, 2800);
+
+    // Reveal lines one by one, starting after bubble appears
+    const lineStart = 3200;
+    const lineDelay = 90; // ms between lines
+
+    lineEls.forEach((el, i) => {
+      schedule(() => {
+        el.classList.add('visible');
+      }, lineStart + i * lineDelay);
+    });
+
+    // Show footer note after all lines
+    const footerDelay = lineStart + reportLines.length * lineDelay + 150;
+    schedule(() => {
+      document.getElementById('footer-note').classList.add('visible');
+    }, footerDelay);
+  }
+
+  function restart() {
+    clearAll();
+
+    // Reset everything
+    ['p0', 'p1', 'p2'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+    });
+    document.getElementById('footer-note').classList.remove('visible');
+
+    setTimeout(run, 200);
+  }
+
+  run();
+</script>
