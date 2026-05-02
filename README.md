@@ -151,6 +151,7 @@ qa-defect-report-writer/
 
 To run an evaluation, paste the input from `EVALUATIONS.md` into Claude with the skill active, then tick each expected behaviour in the checklist. Recommended: test against both Claude Haiku and Claude Sonnet.
 
+See the [live eval results](docs/qa_eval_results.html) for Haiku 4.5 vs Sonnet 4.6 scores.
 ---
 
 ## Installation

@@ -1,0 +1,480 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.root { padding: 1rem 0; }
+h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+.summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+.stat-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; text-align: center; }
+.stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.eval-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.eval-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.eval-num { font-size: 11px; font-weight: 500; background: var(--color-background-secondary); color: var(--color-text-secondary); border-radius: 4px; padding: 2px 8px; }
+.eval-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.eval-purpose { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+.model-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.model-block { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px; }
+.model-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.model-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+.score-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+.score-good { background: #EAF3DE; color: #27500A; }
+.score-mid { background: #FAEEDA; color: #633806; }
+.score-bad { background: #FCEBEB; color: #791F1F; }
+.check-item { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; padding: 3px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.check-item:last-child { border-bottom: none; }
+.icon { flex-shrink: 0; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; margin-top: 1px; }
+.pass { background: #EAF3DE; color: #3B6D11; }
+.fail { background: #FCEBEB; color: #A32D2D; }
+.check-label { color: var(--color-text-primary); line-height: 1.5; }
+.response-toggle { font-size: 11px; color: var(--color-text-secondary); cursor: pointer; margin-top: 8px; text-decoration: underline; display: inline-block; }
+.response-box { margin-top: 8px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 11px; font-family: var(--font-mono); color: var(--color-text-primary); white-space: pre-wrap; max-height: 260px; overflow-y: auto; line-height: 1.5; word-break: break-word; }
+</style>
+
+<div class="root">
+<h2>Eval results — QA defect report writer</h2>
+<p class="subtitle">All 6 evals scored against the EVALUATIONS.md checklist.</p>
+
+<div class="summary-bar">
+  <div class="stat-card"><div class="stat-label">Haiku 4.5</div><div class="stat-value" id="h-score">—</div></div>
+  <div class="stat-card"><div class="stat-label">Sonnet 4.6</div><div class="stat-value" id="s-score">—</div></div>
+  <div class="stat-card"><div class="stat-label">Total checks</div><div class="stat-value">24</div></div>
+</div>
+
+<div id="container"></div>
+</div>
+
+<script>
+const RESPONSES = {
+  "haiku-1": `\`\`\`markdown
+# Defect Report: Login Fails — Users Unable to Authenticate
+
+## Summary
+The login functionality is broken, preventing users from accessing the application. The scope and cause of the failure are currently unknown.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Login / Authentication module |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Unknown |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Navigate to the application login page *(inferred)*
+2. Enter valid credentials *(inferred)*
+3. Click the Login / Sign In button *(inferred)*
+
+## Expected Result
+User is authenticated and redirected to the application dashboard or home screen.
+
+## Actual Result
+Login does not succeed. The exact failure mode (error message, redirect loop, blank page, etc.) is unknown.
+
+## Severity
+**High** — Login is a critical entry point; if broken, no users can access the system.
+
+## Priority
+**P1 - Urgent** — A broken login blocks all user access.
+
+## Additional Notes
+- Environment details unknown *(assumed)* — OS, browser, and test environment were not provided.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`,
+
+  "sonnet-1": `\`\`\`markdown
+# Defect Report: Login Feature Is Non-Functional
+
+## Summary
+The login functionality is not working, preventing users from accessing the application. The exact failure mode and affected scope are unknown at this time.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Login / Authentication |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Unknown |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Open the application and navigate to the login page *(inferred)*
+2. Enter a username and password *(inferred)*
+3. Click the Login button *(inferred)*
+
+## Expected Result
+User is successfully authenticated and redirected to the main application screen.
+
+## Actual Result
+Login fails. The specific error is not known.
+
+## Severity
+**High** — Login is a core function; failure prevents all user access. Defaulting to High given ambiguity — please correct if impact is narrower.
+
+## Priority
+**P2 - High** — Should be investigated and resolved within the current sprint.
+
+## Additional Notes
+- All environment details are unknown *(assumed)*; no OS, browser, build, or environment was specified.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`,
+
+  "haiku-2": `\`\`\`markdown
+# Defect Report: Date Picker Unresponsive on Checkout Page in Safari
+
+## Summary
+The date picker on the checkout page does not open when clicked in Safari. Users are unable to select a date, which may block checkout completion for Safari users.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Checkout — Date Picker |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Safari |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Open the checkout page in Safari *(inferred)*
+2. Click the date picker field
+
+## Expected Result
+The date picker opens and allows date selection.
+
+## Actual Result
+Nothing happens — the date picker does not open when clicked.
+
+## Severity
+**Medium** — The issue is browser-specific; users can work around it by switching to a different browser.
+
+## Priority
+**P3 - Medium** — Affects Safari users only; fix in an upcoming sprint.
+
+## Additional Notes
+- Confirmed in Safari; behaviour in other browsers not reported.
+- A workaround exists: use a non-Safari browser to complete checkout.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.
+
+\`\`\`markdown
+# Defect Report: Confirmation Email Shows $0.00 Instead of Actual Order Total
+
+## Summary
+After a successful order, the confirmation email intermittently displays $0.00 as the order total instead of the correct amount, potentially causing customer confusion and trust issues.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Order Confirmation — Email Service |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Unknown |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Complete a successful order on the site *(inferred)*
+2. Check the confirmation email received
+
+## Expected Result
+The confirmation email displays the correct order total.
+
+## Actual Result
+The confirmation email sometimes shows $0.00 instead of the real order total.
+
+## Severity
+**High** — Financial data is displayed incorrectly; intermittent but impacts customer trust and may trigger disputes.
+
+## Priority
+**P2 - High** — Financial accuracy is critical; fix in current sprint.
+
+## Additional Notes
+- Issue is intermittent — not reproducible 100% of the time. Frequency unknown.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`,
+
+  "sonnet-2": `\`\`\`markdown
+# Defect Report: Date Picker Does Not Open on Checkout Page in Safari
+
+## Summary
+Clicking the date picker on the checkout page produces no response in Safari, preventing users from selecting a date. A workaround exists by using a different browser.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Checkout — Date Picker |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Safari |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Open the checkout page in Safari *(inferred)*
+2. Click the date picker field
+
+## Expected Result
+The date picker opens and the user can select a date.
+
+## Actual Result
+Nothing happens when the date picker is clicked — no dropdown, no calendar, no error message.
+
+## Severity
+**Medium** — Feature is broken in Safari but users can work around it by switching browsers.
+
+## Priority
+**P3 - Medium** — Safari-specific issue; schedule for an upcoming sprint.
+
+## Additional Notes
+- Confirmed in Safari only; other browsers not tested.
+- Workaround: use Chrome, Firefox, or another browser to complete checkout.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.
+
+\`\`\`markdown
+# Defect Report: Order Confirmation Email Shows $0.00 Instead of Real Total
+
+## Summary
+After a successful order, the confirmation email intermittently displays $0.00 as the order total instead of the actual amount paid, which could cause customer confusion and financial disputes.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Order Confirmation — Email Service |
+| Version / Build  | Not provided |
+| OS / Platform    | Unknown |
+| Browser / Client | Unknown |
+| Test Environment | Unknown |
+
+## Steps to Reproduce
+1. Place a successful order on the site *(inferred)*
+2. Open the order confirmation email
+
+## Expected Result
+Confirmation email shows the correct order total.
+
+## Actual Result
+Confirmation email sometimes shows $0.00 instead of the real order total.
+
+## Severity
+**High** — Incorrect financial data in customer-facing emails; intermittent but high impact when it occurs.
+
+## Priority
+**P2 - High** — Financial accuracy issue; prioritise for current sprint.
+
+## Additional Notes
+- Occurrence is intermittent ("sometimes") — exact reproduction rate unknown.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`,
+
+  "haiku-3": `\`\`\`markdown
+# Defect Report: Export CSV Returns 500 Internal Server Error in Settings > Users
+
+## Summary
+Clicking 'Export CSV' in Settings > Users triggers a 500 Internal Server Error toast after a brief spinner, preventing admins from downloading user data. This has reproduced 100% of the time since yesterday's deployment with no workaround.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Settings — Users |
+| Version / Build  | v3.2.1 |
+| OS / Platform    | Windows 11 |
+| Browser / Client | Chrome 124 |
+| Test Environment | Staging |
+
+## Steps to Reproduce
+1. Log in as an admin.
+2. Go to Settings > Users.
+3. Click 'Export CSV'.
+4. A spinner appears for 2 seconds, then a 500 Internal Server Error toast appears.
+
+## Expected Result
+CSV file download starts.
+
+## Actual Result
+A 500 Internal Server Error toast is displayed after approximately 2 seconds. No file is downloaded.
+
+## Severity
+**Critical** — 100% reproduction rate, no workaround, regression since yesterday's deployment.
+
+## Priority
+**P1 - Urgent** — Regression from recent deployment affecting all admins with no workaround.
+
+## Additional Notes
+- 100% reproduction rate since yesterday's deployment.
+- No workaround exists.
+- Related ticket: PROJ-441.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`,
+
+  "sonnet-3": `\`\`\`markdown
+# Defect Report: Export CSV Fails with 500 Internal Server Error in Settings > Users
+
+## Summary
+Attempting to export a CSV from Settings > Users results in a 500 Internal Server Error toast after a 2-second spinner. The issue has a 100% reproduction rate since yesterday's deployment and no workaround exists.
+
+## Environment
+| Field            | Value |
+|------------------|-------|
+| Application      | Settings — Users |
+| Version / Build  | v3.2.1 |
+| OS / Platform    | Windows 11 |
+| Browser / Client | Chrome 124 |
+| Test Environment | Staging |
+
+## Steps to Reproduce
+1. Log in as an admin.
+2. Go to Settings > Users.
+3. Click 'Export CSV'.
+4. Observe: a spinner appears for 2 seconds, then a 500 Internal Server Error toast appears.
+
+## Expected Result
+CSV file download begins.
+
+## Actual Result
+A 500 Internal Server Error toast appears after approximately 2 seconds. No file is downloaded.
+
+## Severity
+**Critical** — 100% reproduction rate, no workaround, regression introduced by yesterday's deployment.
+
+## Priority
+**P1 - Urgent** — Regression from a recent deployment; must be resolved before next release.
+
+## Additional Notes
+- 100% reproduction rate since yesterday's deployment.
+- No workaround available.
+- Related ticket: PROJ-441.
+\`\`\`
+
+Let me know if you'd like to adjust severity, priority, steps, or any other field.`
+};
+
+const EVALS = [
+  {
+    id: 1, title: "Vague one-liner",
+    purpose: "Complete report from minimal input.",
+    checks: [
+      { label: "Produces a full report — does not halt to ask clarifying questions", fn: r => r.includes("# Defect Report") },
+      { label: 'Title describes broken behaviour ("Login Fails" or similar)', fn: r => /# Defect Report:.*[Ll]ogin/i.test(r) },
+      { label: "Unknown/missing fields marked Unknown or Not provided — no raw placeholders", fn: r => !r.includes("[App or module name]") && !r.includes("[Version") && !r.includes("[e.g.") },
+      { label: "Steps to Reproduce reconstructed with *(inferred)* flags", fn: r => /\*\(inferred\)\*|\*inferred\*/i.test(r) },
+      { label: "Environment fields marked *(assumed)* somewhere in output", fn: r => /\*\(assumed\)\*|\*assumed\*/i.test(r) },
+      { label: "Severity defaults to High", fn: r => /\*\*High\*\*/i.test(r) },
+      { label: "Ends with standard one-line offer to adjust", fn: r => /let me know if you.{0,10}d like to adjust/i.test(r) },
+    ]
+  },
+  {
+    id: 2, title: "Multi-bug report",
+    purpose: "Separate reports for two distinct bugs.",
+    checks: [
+      { label: "Produces two separate defect reports", fn: r => (r.match(/# Defect Report:/g)||[]).length >= 2 },
+      { label: "Report 1 covers the Safari date picker issue", fn: r => /date.?picker|checkout.*date/i.test(r) },
+      { label: "Browser field includes Safari", fn: r => /Safari/i.test(r) },
+      { label: "Report 1 severity is Medium or lower", fn: r => { const i1 = r.indexOf("# Defect Report:"); const i2 = r.indexOf("# Defect Report:", i1+1); const block = r.slice(i1, i2 > 0 ? i2 : r.length); return /\*\*(Medium|Low)\*\*/i.test(block); }},
+      { label: '"Sometimes" reflected as intermittent', fn: r => /intermittent|sometimes|occasional|not always/i.test(r) },
+      { label: "Report 2 severity is High or Critical", fn: r => { const i1 = r.indexOf("# Defect Report:"); const i2 = r.indexOf("# Defect Report:", i1+1); if (i2 < 0) return false; return /\*\*(High|Critical)\*\*/i.test(r.slice(i2)); }},
+      { label: 'Actual Result mentions "$0.00"', fn: r => /\$0\.00/i.test(r) },
+      { label: "Both reports in markdown code blocks", fn: r => (r.match(/```markdown/g)||[]).length >= 2 },
+      { label: "Ends with standard one-line offer to adjust", fn: r => /let me know if you.{0,10}d like to adjust/i.test(r) },
+    ]
+  },
+  {
+    id: 3, title: "Detailed well-specified input",
+    purpose: "Faithfully uses all provided detail, no over-inference.",
+    checks: [
+      { label: "Title references Export CSV or Settings > Users", fn: r => /Export CSV|Settings.*Users/i.test((r.match(/# Defect Report:[^\n]*/)||[""])[0]) },
+      { label: "Version / Build: v3.2.1 present", fn: r => /v3\.2\.1/i.test(r) },
+      { label: "OS / Platform: Windows 11 present", fn: r => /Windows 11/i.test(r) },
+      { label: "Browser / Client: Chrome 124 present", fn: r => /Chrome 124/i.test(r) },
+      { label: "Test Environment: Staging present", fn: r => /[Ss]taging/i.test(r) },
+      { label: "Steps match user input — none flagged *(inferred)*", fn: r => !/\*\(inferred\)\*|\*inferred\*/i.test(r) },
+      { label: "Actual Result mentions 500 Internal Server Error", fn: r => /500 Internal Server Error/i.test(r) },
+      { label: "Severity is High or Critical", fn: r => /\*\*(High|Critical)\*\*/i.test(r) },
+      { label: "Priority is P1 or P2", fn: r => /\*\*(P1|P2)/i.test(r) },
+      { label: "Additional Notes includes PROJ-441", fn: r => /PROJ-441/i.test(r) },
+      { label: "Notes 100% reproduction rate", fn: r => /100%/i.test(r) },
+      { label: "No raw placeholder text remains", fn: r => !r.includes("[App or module name]") && !r.includes("[e.g.") && !r.includes("[Version") },
+      { label: "Ends with standard one-line offer to adjust", fn: r => /let me know if you.{0,10}d like to adjust/i.test(r) },
+    ]
+  }
+];
+
+const MODELS = [
+  { key: "haiku", label: "Haiku 4.5" },
+  { key: "sonnet", label: "Sonnet 4.6" },
+];
+
+const showResponse = {};
+
+function score(checks, response) {
+  return checks.map(c => { try { return !!c.fn(response); } catch { return false; } });
+}
+
+function badgeCls(pass, total) {
+  return pass === total ? "score-good" : pass >= Math.ceil(total * 0.7) ? "score-mid" : "score-bad";
+}
+
+function totalFor(mkey) {
+  let p = 0, t = 0;
+  EVALS.forEach(e => {
+    const r = RESPONSES[`${mkey}-${e.id}`] || "";
+    score(e.checks, r).forEach(v => { if (v) p++; t++; });
+  });
+  return `${p}/${t}`;
+}
+
+function toggleResp(key) {
+  showResponse[key] = !showResponse[key];
+  render();
+}
+
+function render() {
+  document.getElementById("h-score").textContent = totalFor("haiku");
+  document.getElementById("s-score").textContent = totalFor("sonnet");
+
+  document.getElementById("container").innerHTML = EVALS.map(e => {
+    const cols = MODELS.map(m => {
+      const key = `${m.key}-${e.id}`;
+      const r = RESPONSES[key] || "";
+      const scores = score(e.checks, r);
+      const pass = scores.filter(Boolean).length;
+      const total = scores.length;
+      const cls = badgeCls(pass, total);
+      const checks = e.checks.map((c, i) =>
+        `<div class="check-item">
+          <div class="icon ${scores[i] ? "pass" : "fail"}">${scores[i] ? "✓" : "✗"}</div>
+          <div class="check-label">${c.label}</div>
+        </div>`
+      ).join("");
+      const showing = showResponse[key];
+      const esc = r.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      return `<div class="model-block">
+        <div class="model-header">
+          <span class="model-label">${m.label}</span>
+          <span class="score-badge ${cls}">${pass}/${total} passed</span>
+        </div>
+        <div>${checks}</div>
+        <span class="response-toggle" onclick="toggleResp('${key}')">${showing ? "Hide" : "Show"} raw response</span>
+        ${showing ? `<div class="response-box">${esc}</div>` : ""}
+      </div>`;
+    }).join("");
+    return `<div class="eval-card">
+      <div class="eval-header">
+        <span class="eval-num">Eval ${e.id}</span>
+        <span class="eval-title">${e.title}</span>
+      </div>
+      <div class="eval-purpose">${e.purpose}</div>
+      <div class="model-row">${cols}</div>
+    </div>`;
+  }).join("");
+}
+
+render();
+</script>
