@@ -132,9 +132,14 @@ affecting all users.
 
 ```
 qa-defect-report-writer/
-├── SKILL.md          # Skill instructions loaded by Claude
-├── EVALUATIONS.md    # Three test scenarios with expected-behaviour checklists
-└── README.md         # This file
+├── assets/
+│   └── qa_defect_demo.gif       # Demo animation embedded in README
+├── docs/
+│   └── qa_eval_results.html     # Haiku 4.5 vs Sonnet 4.6 eval scores
+├── EVALUATIONS.md               # Three test scenarios with expected-behaviour checklists
+├── LICENSE                      # MIT licence
+├── README.md                    # This file
+└── SKILL.md                     # Skill instructions loaded by Claude
 ```
 
 ---
